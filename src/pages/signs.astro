@@ -1,0 +1,146 @@
+---
+import "toastify-js/src/toastify.css";
+
+import Base from "@/layouts/base.astro";
+
+const signs = [
+    {
+        url: "https://placehold.co/200x100/green/green",
+        type: "base",
+    },
+    {
+        url: "https://placehold.co/400x100/blue/blue",
+        type: "base",
+    },
+    {
+        url: "https://placehold.co/600x100/red/red",
+        type: "base",
+    },
+    {
+        url: "https://placehold.co/200x100/gray/white",
+        type: "overlay",
+        mood: "light",
+    },
+    {
+        url: "https://placehold.co/400x100/gray/white",
+        type: "overlay",
+        mood: "light",
+    },
+    {
+        url: "https://placehold.co/600x100/gray/white",
+        type: "overlay",
+        mood: "light",
+    },
+    {
+        url: "https://placehold.co/200x100/gray/black",
+        type: "overlay",
+        mood: "dark",
+    },
+    {
+        url: "https://placehold.co/400x100/gray/black",
+        type: "overlay",
+        mood: "dark",
+    },
+    {
+        url: "https://placehold.co/600x100/gray/black",
+        type: "overlay",
+        mood: "dark",
+    },
+];
+---
+
+<Base>
+    <div class="signs">
+        <div>Base</div>
+        <div>Overlay</div>
+        <div class="base">
+            {
+                signs
+                    .filter((sign) => sign.type === "base")
+                    .map((sign) => (
+                        <button
+                            type="button"
+                            data-url={sign.url}
+                            class="sign"
+                            style={`background-image: url(${sign.url});`}
+                        />
+                    ))
+            }
+        </div>
+        <div class="overlay">
+            {
+                signs
+                    .filter((sign) => sign.type === "overlay")
+                    .map((sign) => (
+                        <button
+                            type="button"
+                            data-url={sign.url}
+                            class="sign sign-overlay"
+                            style={`background-image: url(${sign.url});`}
+                        />
+                    ))
+            }
+        </div>
+    </div>
+</Base>
+
+<style type="text/css">
+    .filters {
+        display: flex;
+        justify-content: space-around;
+    }
+
+    .signs {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        text-align: center;
+        gap: 10px;
+    }
+
+    .signs > * {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-content: flex-start;
+        gap: 5px;
+        width: calc(50% - 5px);
+    }
+
+    .sign {
+        width: 300px;
+        height: 300px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        border-radius: 5px;
+        border: 1px solid gray;
+    }
+
+    .sign:hover {
+        border-color: white;
+    }
+</style>
+
+<script>
+    import Toastify from "toastify-js";
+
+    const signs = document.querySelectorAll(".sign") as NodeListOf<HTMLElement>;
+    signs.forEach((sign) => {
+        sign.addEventListener("click", () => {
+            if (sign.dataset.url) {
+                navigator.clipboard.writeText(sign.dataset.url);
+
+                Toastify({
+                    text: "Copied",
+                    duration: 1000,
+                    position: "center",
+                    style: {
+                        background:
+                            "linear-gradient(to top left, #000000, #00004a)",
+                    },
+                }).showToast();
+            }
+        });
+    });
+</script>

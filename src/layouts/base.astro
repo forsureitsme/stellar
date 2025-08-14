@@ -1,0 +1,88 @@
+---
+
+---
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content={Astro.generator} />
+        <title>Stellar Mapping</title>
+    </head>
+    <body>
+        <nav>
+            <h1>
+                <a href="/">
+                    <img
+                        src="/favicon.png"
+                        alt="Stellar Mapping Team"
+                        height="64"
+                    />
+                </a>
+            </h1>
+            <button type="button" class="menu-toggle" onclick="menu.showModal()"
+                >☰</button
+            >
+        </nav>
+        <dialog id="menu">
+            <button type="button" autofocus onclick="menu.close()">✖</button>
+            <ul>
+                <li>
+                    <a href="/signs">Signs</a>
+                </li>
+            </ul>
+        </dialog>
+        <slot />
+    </body>
+</html>
+
+<style is:global>
+    :root {
+        --stellar-gradient: linear-gradient(to bottom right, #000000, #00004a);
+    }
+
+    button {
+        all: unset;
+        cursor: pointer;
+    }
+</style>
+
+<style>
+    html {
+        background-image: var(--stellar-gradient);
+    }
+
+    * {
+        color: white;
+        font-family: sans-serif;
+    }
+
+    h1 {
+        margin: 0;
+    }
+
+    nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .menu-toggle {
+        font-size: 32px;
+    }
+
+    #menu {
+        border: none;
+        background-image: var(--stellar-gradient);
+        text-align: center;
+
+        font-size: 1.5em;
+    }
+
+    #menu ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+    }
+</style>
