@@ -39,12 +39,21 @@ import { base } from "astro:config/client";
 
 <style is:global>
     :root {
-        --stellar-gradient: linear-gradient(to bottom right, #000000, #00004a);
+        --stellar-blue: #00004a;
+        --stellar-gradient: linear-gradient(to bottom right, black, #00004a);
     }
 
     button {
         all: unset;
         cursor: pointer;
+    }
+
+    * {
+        color: white;
+        font-family: sans-serif;
+        -webkit-font-smoothing: auto;
+        -moz-osx-font-smoothing: auto;
+        text-rendering: auto;
     }
 </style>
 
@@ -52,11 +61,6 @@ import { base } from "astro:config/client";
     html {
         background-image: var(--stellar-gradient);
         min-height: 100vh;
-    }
-
-    * {
-        color: white;
-        font-family: sans-serif;
     }
 
     h1 {
@@ -79,6 +83,8 @@ import { base } from "astro:config/client";
         text-align: center;
 
         font-size: 1.5em;
+        width: 100vw;
+        height: 100vh;
     }
 
     #menu ul {

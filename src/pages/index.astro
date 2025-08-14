@@ -3,4 +3,35 @@ import Base from "@/layouts/base.astro";
 ---
 
 <Base>
+    <div class="hero">
+        <p>
+            Hi everyone! This is the Stellar Mapping team. <br />
+            Enjoy!
+        </p>
+        <a
+            class="cta"
+            href="https://discord.com/invite/vPQVyKpNKE"
+            target="_blank">Join our Discord</a
+        >
+    </div>
 </Base>
+
+<style>
+    .hero {
+        font-size: 2em;
+        text-align: center;
+        min-height: 500px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+
+    }
+    .cta {
+        all: unset;
+        background-color: var(--stellar-blue);
+        padding: 1em 2em;
+        border-radius: 9999px;
+        cursor: pointer;
+    }
+</style>
