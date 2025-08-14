@@ -23,8 +23,6 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
-# Dependency locks
-*lock.*
-
 #pnpm
 pnpm-*
+!pnpm-lock.yaml
