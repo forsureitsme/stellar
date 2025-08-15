@@ -1,0 +1,132 @@
+---
+const stellarMemberCount = 7;
+
+if (stellarMemberCount <= 0) return 1;
+const sqrt = Math.sqrt(stellarMemberCount);
+const n1 = Math.floor(sqrt);
+const n2 = Math.ceil(sqrt);
+
+// Calculate rows needed for each column count
+const rows1 = Math.ceil(stellarMemberCount / n1);
+const rows2 = Math.ceil(stellarMemberCount / n2);
+
+// Compare grid "squareness" (minimize max dimension)
+const max1 = Math.max(n1, rows1);
+const max2 = Math.max(n2, rows2);
+
+const columnCount = max1 < max2 ? n1 : n2;
+
+const alignments = ["flex-start", "center", "flex-end"];
+
+const pickRandom = (choices: Array<any>) =>
+    choices[~~(Math.random() * choices.length)];
+
+const stars = [...Array(stellarMemberCount)].map((_, i) => ({
+    justifyContent: pickRandom(alignments),
+    alignItems: pickRandom(alignments),
+}));
+---
+
+<div class="sky">
+    {
+        [...Array(4)].map((_, i) => (
+            <div class="plane">
+                {stars.map(({ justifyContent, alignItems }) => (
+                    <div
+                        class="sector"
+                        style={{
+                            justifyContent,
+                            alignItems,
+                        }}
+                    >
+                        <div class="star" />
+                    </div>
+                ))}
+            </div>
+        ))
+    }
+</div>
+
+<style define:vars={{ columnCount }}>
+    .plane {
+        position: fixed;
+        width: 100vw;
+        height: 100vh;
+        top: 0;
+        right: 0;
+
+        font-size: 1.3px;
+        animation: shooting-stars 3s linear infinite;
+        z-index: -1;
+        filter: blur(1px);
+        opacity: 25%;
+
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .plane:nth-child(n + 2) {
+        top: 100vh;
+        right: 0;
+    }
+
+    .plane:nth-child(n + 3) {
+        top: 100vh;
+        right: 100vw;
+    }
+
+    .plane:nth-child(n + 4) {
+        top: 0;
+        right: 100vw;
+    }
+
+    .star,
+    .star:before,
+    .star:after {
+        content: "";
+        position: absolute;
+        height: 0;
+        width: 0;
+    }
+
+    .sector {
+        display: flex;
+        flex: 0 0 calc(100% / var(--columnCount));
+    }
+
+    .star {
+        position: relative;
+        margin: 20px 14px;
+        font-size: 10em;
+        border-bottom: 0.7em solid white;
+        border-left: 1em solid transparent;
+        transform: rotate(35deg);
+    }
+
+    .star:before {
+        border-bottom: 0.8em solid white;
+        border-left: 0.3em solid transparent;
+        border-right: 0.3em solid transparent;
+        top: -0.45em;
+        left: -0.65em;
+        transform: rotate(-35deg);
+    }
+    .star:after {
+        top: 0.23em;
+        left: -1.65em;
+        border-right: 1em solid transparent;
+        border-bottom: 0.8em solid white;
+        border-left: 2em solid transparent;
+        transform: rotate(-70deg);
+    }
+
+    @keyframes shooting-stars {
+        0% {
+            transform: translate(0, 0);
+        }
+
+        100% {
+            transform: translate(100%, -100%);
+        }
+    }
+</style>

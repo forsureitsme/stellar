@@ -1,5 +1,6 @@
 ---
 import { base } from "astro:config/client";
+import Sky from "@/components/sky.astro";
 ---
 
 <html lang="en">
@@ -11,6 +12,7 @@ import { base } from "astro:config/client";
         <title>Stellar Mapping</title>
     </head>
     <body>
+        <Sky />
         <nav>
             <h1>
                 <a href={`${base}/`}>
