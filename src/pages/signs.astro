@@ -1,52 +1,70 @@
 ---
 import "toastify-js/src/toastify.css";
 
-import Base from "@/layouts/base.astro";
+import { basename } from "node:path";
 
-const signs = [
+import Base from "@/layouts/base.astro";
+import { Image } from "astro:assets";
+
+const Locators = import.meta.glob("@/assets/*.loc", {
+    query: "?raw",
+    import: "default",
+});
+
+const ImageAssets: { [i: string]: ImageMetadata } = import.meta.glob(
+    "@/assets/*.{png,jpg}",
     {
-        url: "https://placehold.co/200x100/green/green",
-        type: "base",
+        eager: true,
+        import: "default",
     },
-    {
-        url: "https://placehold.co/400x100/blue/blue",
-        type: "base",
-    },
-    {
-        url: "https://placehold.co/600x100/red/red",
-        type: "base",
-    },
-    {
-        url: "https://placehold.co/200x100/gray/white",
-        type: "overlay",
-        mood: "light",
-    },
-    {
-        url: "https://placehold.co/400x100/gray/white",
-        type: "overlay",
-        mood: "light",
-    },
-    {
-        url: "https://placehold.co/600x100/gray/white",
-        type: "overlay",
-        mood: "light",
-    },
-    {
-        url: "https://placehold.co/200x100/gray/black",
-        type: "overlay",
-        mood: "dark",
-    },
-    {
-        url: "https://placehold.co/400x100/gray/black",
-        type: "overlay",
-        mood: "dark",
-    },
-    {
-        url: "https://placehold.co/600x100/gray/black",
-        type: "overlay",
-        mood: "dark",
-    },
-];
+);
+
+enum SignGroups {
+    Overlay,
+    Default,
+    White,
+    Green,
+    Blue,
+    Red,
+    Black,
+    WhiteStartCpFinish,
+    BlackStartCpFinish,
+}
+
+const signs: any[] = [];
+
+for (const locator in Locators) {
+    await Locators[locator]().then(async (loc) => {
+        const name = basename(locator.slice(0, -8))
+            .split("_")
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ");
+
+        const src = locator.slice(0, -4);
+
+        let group = SignGroups.Default;
+
+        if (ImageAssets[src].format === "png") {
+            group = SignGroups.Overlay;
+        } else if (/^black\s{1}\S*$/i.test(name)) {
+            group = SignGroups.BlackStartCpFinish;
+        } else if (/^white\s{1}\S*$/i.test(name)) {
+            group = SignGroups.WhiteStartCpFinish;
+        }
+
+        const colorMatch = /(white|green|blue|red|black)$/i.exec(name);
+        if (colorMatch) {
+            group = SignGroups[colorMatch[1] as keyof typeof SignGroups];
+        }
+
+        signs.push({
+            name,
+            src,
+            loc,
+            group,
+        });
+    });
+}
 ---
 
 <Base>
@@ -56,28 +74,37 @@ const signs = [
         <div class="base">
             {
                 signs
-                    .filter((sign) => sign.type === "base")
+                    .filter((sign) => sign.group !== SignGroups.Overlay)
+                    .sort((a, b) =>
+                        a.group < b.group ? -1 : a.name < b.name ? -1 : 1,
+                    )
                     .map((sign) => (
-                        <button
-                            type="button"
-                            data-url={sign.url}
-                            class="sign"
-                            style={`background-image: url(${sign.url});`}
-                        />
+                        <button type="button" data-url={sign.loc} class="sign">
+                            <Image
+                                src={ImageAssets[sign.src]}
+                                alt={sign.name}
+                            />
+                            <div class="name">{sign.name}</div>
+                        </button>
                     ))
             }
         </div>
         <div class="overlay">
             {
                 signs
-                    .filter((sign) => sign.type === "overlay")
+                    .filter((sign) => sign.group === SignGroups.Overlay)
                     .map((sign) => (
                         <button
                             type="button"
-                            data-url={sign.url}
+                            data-url={sign.loc}
                             class="sign sign-overlay"
-                            style={`background-image: url(${sign.url});`}
-                        />
+                        >
+                            <Image
+                                src={ImageAssets[sign.src]}
+                                alt={sign.name}
+                            />
+                            <div class="name">{sign.name}</div>
+                        </button>
                     ))
             }
         </div>
@@ -109,7 +136,6 @@ const signs = [
 
     .sign {
         width: 300px;
-        height: 300px;
         background-size: contain;
         background-repeat: no-repeat;
         background-position: center;
@@ -119,6 +145,11 @@ const signs = [
 
     .sign:hover {
         border-color: white;
+    }
+
+    .sign img {
+        width: 100%;
+        height: auto;
     }
 </style>
 

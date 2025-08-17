@@ -1,12 +1,15 @@
 ---
 import { base } from "astro:config/client";
+import { Image } from "astro:assets";
+
 import Sky from "@/components/sky.astro";
+import Favicon from "@/assets/favicon.png";
 ---
 
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <link rel="icon" type="image/png" href={`${base}/favicon.png`} />
+        <link rel="icon" type="image/png" href={Favicon.src} />
         <meta name="viewport" content="width=device-width" />
         <meta name="generator" content={Astro.generator} />
         <title>Stellar Mapping</title>
@@ -16,8 +19,8 @@ import Sky from "@/components/sky.astro";
         <nav>
             <h1>
                 <a href={`${base}/`}>
-                    <img
-                        src={`${base}/favicon.png`}
+                    <Image
+                        src={Favicon}
                         alt="Stellar Mapping Team"
                         height="64"
                     />
