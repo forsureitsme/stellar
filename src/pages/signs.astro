@@ -5,6 +5,7 @@ import { basename } from "node:path";
 
 import Base from "@/layouts/base.astro";
 import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
 
 const Locators = import.meta.glob("@/assets/*.loc", {
     query: "?raw",
@@ -19,8 +20,9 @@ const ImageAssets: { [i: string]: ImageMetadata } = import.meta.glob(
     },
 );
 
-enum SignGroups {
-    Overlay,
+enum SignGroup {
+    OverlayLight,
+    OverlayDark,
     Default,
     White,
     Green,
@@ -30,6 +32,31 @@ enum SignGroups {
     WhiteStartCpFinish,
     BlackStartCpFinish,
 }
+
+const getLocatorGroup = ({ src, name }: Record<string, string>) => {
+    if (ImageAssets[src].format === "png") {
+        if (/black$/i.test(name)) {
+            return SignGroup.OverlayDark;
+        } else {
+            return SignGroup.OverlayLight;
+        }
+    } else if (/^black\s{1}\S*$/i.test(name)) {
+        return SignGroup.BlackStartCpFinish;
+    } else if (/^white\s{1}\S*$/i.test(name)) {
+        return SignGroup.WhiteStartCpFinish;
+    }
+
+    const colorMatch = /(white|green|blue|red|black)$/i.exec(name);
+    if (colorMatch) {
+        return SignGroup[colorMatch[1] as keyof typeof SignGroup];
+    }
+
+    return SignGroup.Default;
+};
+
+const isOverlaySignGroup = (group: SignGroup) => {
+    return [SignGroup.OverlayLight, SignGroup.OverlayDark].includes(group);
+};
 
 const signs: any[] = [];
 
@@ -42,29 +69,26 @@ for (const locator in Locators) {
 
         const src = locator.slice(0, -4);
 
-        let group = SignGroups.Default;
-
-        if (ImageAssets[src].format === "png") {
-            group = SignGroups.Overlay;
-        } else if (/^black\s{1}\S*$/i.test(name)) {
-            group = SignGroups.BlackStartCpFinish;
-        } else if (/^white\s{1}\S*$/i.test(name)) {
-            group = SignGroups.WhiteStartCpFinish;
-        }
-
-        const colorMatch = /(white|green|blue|red|black)$/i.exec(name);
-        if (colorMatch) {
-            group = SignGroups[colorMatch[1] as keyof typeof SignGroups];
-        }
+        const group = getLocatorGroup({ src, name });
 
         signs.push({
+            loc,
             name,
             src,
-            loc,
             group,
         });
     });
 }
+
+const backgroundAssets = Object.entries(ImageAssets);
+const backgroundSigns: { [key in SignGroup]?: ImageMetadata } = {
+    [SignGroup.OverlayLight]: backgroundAssets.find(
+        ([name]) => "black.jpg" === basename(name),
+    )?.[1],
+    [SignGroup.OverlayDark]: backgroundAssets.find(
+        ([name]) => "white.jpg" === basename(name),
+    )?.[1],
+};
 ---
 
 <Base>
@@ -74,7 +98,7 @@ for (const locator in Locators) {
         <div class="base">
             {
                 signs
-                    .filter((sign) => sign.group !== SignGroups.Overlay)
+                    .filter((sign) => !isOverlaySignGroup(sign.group))
                     .sort((a, b) =>
                         a.group < b.group ? -1 : a.name < b.name ? -1 : 1,
                     )
@@ -92,13 +116,21 @@ for (const locator in Locators) {
         <div class="overlay">
             {
                 signs
-                    .filter((sign) => sign.group === SignGroups.Overlay)
+                    .filter((sign) => isOverlaySignGroup(sign.group))
+                    .sort((a, b) =>
+                        a.group < b.group ? -1 : a.name < b.name ? -1 : 1,
+                    )
                     .map((sign) => (
                         <button
                             type="button"
                             data-url={sign.loc}
                             class="sign sign-overlay"
                         >
+                            <Image
+                                src={backgroundSigns[sign.group]}
+                                alt="Background for sign"
+                                class="sign-background"
+                            />
                             <Image
                                 src={ImageAssets[sign.src]}
                                 alt={sign.name}
@@ -141,6 +173,7 @@ for (const locator in Locators) {
         background-position: center;
         border-radius: 5px;
         border: 1px solid gray;
+        position: relative;
     }
 
     .sign:hover {
@@ -150,6 +183,15 @@ for (const locator in Locators) {
     .sign img {
         width: 100%;
         height: auto;
+    }
+
+    .sign-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: auto;
+        z-index: -1;
     }
 </style>
 
